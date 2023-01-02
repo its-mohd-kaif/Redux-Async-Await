@@ -1,13 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-
+// Initial State
 const initialState = {
   loading: false,
   products: [],
   error: "",
   attributes: [],
 };
-
+// Fetch Category Reducer
 export const fetchCategory = createAsyncThunk(
   "category/fetchCategory",
   async ({ url, payload }) => {
@@ -38,11 +38,10 @@ export const fetchCategory = createAsyncThunk(
     return val;
   }
 );
-
+// Fecth Attribute Reducer
 export const fetchAttributes = createAsyncThunk(
   "category/fetchAttributes",
   async ({ url, browseNodeId, primaryCategory, subCategory }) => {
-    console.log("REDUC PRI", browseNodeId, primaryCategory, subCategory);
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -76,10 +75,11 @@ export const fetchAttributes = createAsyncThunk(
     return val;
   }
 );
-
+// Slice
 const reduxSlice = createSlice({
   name: "products",
   initialState,
+  // Extra Reducer for Fecth Category
   extraReducers: (builder) => {
     builder.addCase(fetchCategory.pending, (state) => {
       state.loading = true;
@@ -94,7 +94,7 @@ const reduxSlice = createSlice({
       state.products = [];
       state.error = action.error.message;
     });
-
+    // Extra Reducer for Fetch Attribute
     builder.addCase(fetchAttributes.pending, (state) => {
       state.loading = true;
     });

@@ -1,32 +1,46 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Loader from "./Loader";
 import { Select } from "@shopify/polaris";
 import { fetchCategory } from "../redux/reduxSlice";
 import { fetchAttributes } from "../redux/reduxSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { TextField } from "@shopify/polaris";
+import { Button } from "@shopify/polaris";
 
 function LandingPage() {
+  // UseDispatch For Dispatching Actions
   const dispatch = useDispatch();
+  // UseSelect For Check Updated State Value
   const data = useSelector((state) => state.products.products.data);
   const loader = useSelector((state) => state.products.loading);
   const attribute = useSelector((state) => state.products.attributes);
-  const [selected, setSelected] = useState(null);
+  const error = useSelector((state) => state.products);
+  // Select State For check which categrory is press
+  const [selected, setSelected] = useState(undefined);
+  // SelectAtt For check which attribute is press
   const [selectAtt, SetSelectAtt] = useState(null);
+  // Payload State For Store Payload and pass with api
   const [payload, setPayload] = useState([]);
+  // Str State For Hold and Display All Categroy One By One
   const [str, setStr] = useState([]);
+  // Result State For Storing Attribute Key Value
   const [result, setResult] = useState([]);
   const attriOptions = ["--Select--"];
+  // Throw Error When Api Response is False
+  if (error.products.success === false) {
+    throw new Error(error.message);
+  }
+  // Function When User Select Category
   const handleSelectChange = (val) => {
     setSelected(val);
+    result.push(val);
     let tempArr = [];
     for (let i = 0; i < data.length; i++) {
       if (data[i].name === val && data[i].hasChildren === true) {
         setPayload(data[i].parent_id);
-        result.push(val);
         str.push(
           <Select
-            label="Date range"
+            label="Category"
             options={options}
             onChange={handleSelectChange}
             value={val}
@@ -46,10 +60,11 @@ function LandingPage() {
     }
     setResult([...result]);
   };
-
+  // Function for select attribute
   const handleAttributes = (val) => {
     SetSelectAtt(val);
   };
+  // UseEffect for When Page is reload then we dispatch action
   useEffect(() => {
     dispatch(
       fetchCategory({
@@ -57,36 +72,39 @@ function LandingPage() {
         payload: payload,
       })
     );
-  }, [payload]);
+  }, [dispatch, payload]);
 
   let options = ["--Select--"];
+  // Set Options Value When Data is Get From Api
   if (data !== undefined) {
-    data.forEach((element) => {
+    data.forEach((element, index) => {
       let obj = {
         label: element.name,
         value: element.name,
+        key: index,
       };
       options.push(obj);
     });
   }
-
+  // Set Options Value When Attribute Data Is Get From APi
   if (attribute.length !== 0) {
-    Object.keys(attribute.data.Mandantory).forEach((element) => {
+    Object.keys(attribute.data.Mandantory).forEach((element, index) => {
       let obj = {
         label: element,
         value: element,
+        key: index,
       };
       attriOptions.push(obj);
     });
   }
-
+  // UseState For Set Attribute Data into table
   const [value, setValue] = useState("");
   const [display, setDisplay] = useState([]);
-
+  // State For Get Attribute Value
   const handleChange = (val) => {
     setValue(val);
   };
-
+  // Function That Push Attribute Value into state and display
   const attributeAdd = () => {
     let obj = {
       key: selectAtt,
@@ -96,28 +114,31 @@ function LandingPage() {
     setValue("");
   };
 
-  console.log("Choose", display);
-
   return (
     <center>
       <div style={{ width: "50%" }}>
-        <h1>LandingPage</h1>
+        <h1 style={{ fontSize: "30px", margin: "1em" }}>Shopify Async Await</h1>
+        {/* Breadcrumb */}
         <div>
-          {result.map((val) => (
-            <span>{val} : </span>
+          {result.map((val, index) => (
+            <span key={index} style={{ fontSize: "24px", marginTop: "1em" }}>
+              {val} <i className="fa fa-angle-double-right"></i>{" "}
+            </span>
           ))}
         </div>
+        {/* Loader */}
         {loader === true ? <Loader /> : null}
-        {selected !== null ? str : null}
+        {/* Category */}
+        {selected !== undefined ? str : undefined}
         {data !== null ? (
           <Select
-            label="Date range"
+            label="Category"
             options={options}
             onChange={handleSelectChange}
             value={selected}
           />
         ) : null}
-
+        {/* Attribute */}
         {attribute.length !== 0 ? (
           <Select
             label="Attributes"
@@ -126,7 +147,7 @@ function LandingPage() {
             value={selectAtt}
           />
         ) : null}
-
+        {/* Input Form And Button */}
         {selectAtt !== null ? (
           <>
             <TextField
@@ -135,16 +156,16 @@ function LandingPage() {
               onChange={handleChange}
               autoComplete="off"
             />
-            <div>
-              <button onClick={attributeAdd}>ADD</button>
+            <div style={{ margin: "1em" }}>
+              <Button onClick={attributeAdd}>Add product</Button>
             </div>
           </>
         ) : null}
 
-        {/* Display */}
+        {/* Table Display */}
         {display.length !== 0 ? (
           <div>
-            <table >
+            <table>
               <thead>
                 <tr>
                   <th>Attribute</th>
@@ -152,9 +173,9 @@ function LandingPage() {
                 </tr>
               </thead>
               <tbody>
-                {display.map((val) => (
+                {display.map((val, index) => (
                   <>
-                    <tr>
+                    <tr key={index}>
                       <td>{val.key}</td>
                       <td>{val.attribute}</td>
                     </tr>

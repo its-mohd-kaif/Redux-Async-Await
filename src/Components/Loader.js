@@ -2,9 +2,9 @@ import { Frame, Loading } from "@shopify/polaris";
 import React from "react";
 
 function Loader() {
-  console.log("Loader");
+  // Loader Component
   return (
-    <div style={{ height: "100px" }}>
+    <div style={{ height: "50px" }}>
       <Frame>
         <Loading />
       </Frame>
@@ -13,5 +13,3 @@ function Loader() {
 }
 
 export default Loader;
-
-
