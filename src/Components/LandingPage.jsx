@@ -18,7 +18,7 @@ function LandingPage() {
   // Select State For check which categrory is press
   const [selected, setSelected] = useState(undefined);
   // SelectAtt For check which attribute is press
-  const [selectAtt, SetSelectAtt] = useState(null);
+  const [selectAtt, SetSelectAtt] = useState(undefined);
   // Payload State For Store Payload and pass with api
   const [payload, setPayload] = useState([]);
   // Str State For Hold and Display All Categroy One By One
@@ -38,8 +38,9 @@ function LandingPage() {
     for (let i = 0; i < data.length; i++) {
       if (data[i].name === val && data[i].hasChildren === true) {
         setPayload(data[i].parent_id);
-        str.push(
+        tempArr.push(
           <Select
+            key={Math.random() * 10000}
             label="Category"
             options={options}
             onChange={handleSelectChange}
@@ -72,7 +73,7 @@ function LandingPage() {
         payload: payload,
       })
     );
-  }, [dispatch, payload]);
+  }, [payload]);
 
   let options = ["--Select--"];
   // Set Options Value When Data is Get From Api
@@ -106,12 +107,16 @@ function LandingPage() {
   };
   // Function That Push Attribute Value into state and display
   const attributeAdd = () => {
-    let obj = {
-      key: selectAtt,
-      attribute: value,
-    };
-    setDisplay([...display, obj]);
-    setValue("");
+    if (value === "") {
+      alert("Blank Field Not Be Added!!!");
+    } else {
+      let obj = {
+        key: selectAtt,
+        attribute: value,
+      };
+      setDisplay([...display, obj]);
+      setValue("");
+    }
   };
 
   return (
@@ -130,8 +135,9 @@ function LandingPage() {
         {loader === true ? <Loader /> : null}
         {/* Category */}
         {selected !== undefined ? str : undefined}
-        {data !== null ? (
+        {loader === false ? (
           <Select
+            key={Math.random() * 10000}
             label="Category"
             options={options}
             onChange={handleSelectChange}
@@ -141,6 +147,7 @@ function LandingPage() {
         {/* Attribute */}
         {attribute.length !== 0 ? (
           <Select
+            key={Math.random() * 10000}
             label="Attributes"
             options={attriOptions}
             onChange={handleAttributes}
@@ -148,10 +155,10 @@ function LandingPage() {
           />
         ) : null}
         {/* Input Form And Button */}
-        {selectAtt !== null ? (
+        {selectAtt !== undefined ? (
           <>
             <TextField
-              label="Store name"
+              label="Value"
               value={value}
               onChange={handleChange}
               autoComplete="off"
